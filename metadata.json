@@ -1,0 +1,6 @@
+{
+  "name": "জমা-খরচ",
+  "description": "Date to Date এবং ক্যাটাগরি ও ধরন ভিত্তিক জমা ও খরচের পূর্ণাঙ্গ রিপোর্ট ও ট্র্যাকার",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
