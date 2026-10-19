@@ -10,13 +10,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -56,19 +56,21 @@ fun TransactionsListScreen(
     var searchQuery by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf("ALL") }
     var selectedCategory by remember { mutableStateOf("ALL") }
+    var onlyRecurring by remember { mutableStateOf(false) }
 
-    val filteredList by remember(allTransactions, searchQuery, selectedType, selectedCategory) {
+    val filteredList by remember(allTransactions, searchQuery, selectedType, selectedCategory, onlyRecurring) {
         derivedStateOf {
             val q = searchQuery.trim().lowercase()
             allTransactions.filter { item ->
                 val typeMatch = selectedType == "ALL" || item.type.equals(selectedType, ignoreCase = true)
                 val catMatch = selectedCategory == "ALL" || item.category.equals(selectedCategory, ignoreCase = true)
+                val recurringMatch = !onlyRecurring || item.isRecurring
                 val qMatch = q.isEmpty() ||
                         item.note.lowercase().contains(q) ||
                         item.category.lowercase().contains(q) ||
                         item.date.contains(q) ||
                         item.paymentMethod.lowercase().contains(q)
-                typeMatch && catMatch && qMatch
+                typeMatch && catMatch && recurringMatch && qMatch
             }
         }
     }
@@ -80,7 +82,6 @@ fun TransactionsListScreen(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        // Title
         item {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
@@ -97,7 +98,6 @@ fun TransactionsListScreen(
             }
         }
 
-        // Search Bar
         item {
             OutlinedTextField(
                 value = searchQuery,
@@ -125,7 +125,6 @@ fun TransactionsListScreen(
             )
         }
 
-        // Type filter chips
         item {
             Row(
                 modifier = Modifier
@@ -149,10 +148,23 @@ fun TransactionsListScreen(
                         )
                     )
                 }
+
+                FilterChip(
+                    selected = onlyRecurring,
+                    onClick = { onlyRecurring = !onlyRecurring },
+                    label = { Text("🔁 শুধু পুনরাবৃত্তি") },
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Default.Repeat, contentDescription = null)
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                    modifier = Modifier.testTag("filter_recurring_only")
+                )
             }
         }
 
-        // Category filter chips
         item {
             Row(
                 modifier = Modifier
@@ -177,7 +189,6 @@ fun TransactionsListScreen(
             }
         }
 
-        // Results count
         item {
             Text(
                 text = "ফলাফল: ${filteredList.size}টি",

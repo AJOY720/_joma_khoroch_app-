@@ -1,7 +1,7 @@
 {
   "name": "জমা-খরচ",
   "short_name": "জমা-খরচ",
-  "description": "Date-to-Date এবং ক্যাটাগরি ও ধরন ভিত্তিক ব্যক্তিগত হিসাব ও রিপোর্ট",
+  "description": "Date-to-Date এবং ক্যাটাগরি ও ধরন ভিত্তিক ব্যক্তিগত হিসাব, রিপোর্ট ও মাসিক স্বয়ংক্রিয় পুনরাবৃত্তি",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f3f6f5",

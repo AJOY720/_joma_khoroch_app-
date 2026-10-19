@@ -19,7 +19,6 @@
             </gradient>
         </aapt:attr>
     </path>
-    <!-- Subtle circular watermark glow in background -->
     <path
         android:pathData="M54,54m-42,0a42,42 0,1,1 84,0a42,42 0,1,1 -84,0"
         android:fillColor="#0DFFFFFF" />

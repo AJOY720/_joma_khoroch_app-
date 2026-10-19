@@ -82,7 +82,6 @@ fun MainAppScreen(viewModel: MainViewModel) {
     var showSettingsDialog by remember { mutableStateOf(false) }
     var defaultTypeForAdd by remember { mutableStateOf("expense") }
 
-    // Intercept back button when not on HOME tab
     BackHandler(enabled = currentTab != AppTab.HOME && !isAppLocked) {
         currentTab = AppTab.HOME
     }
@@ -105,7 +104,6 @@ fun MainAppScreen(viewModel: MainViewModel) {
                     )
                 },
                 actions = {
-                    // Lock button if PIN is configured (matches original web app #lockNow)
                     if (isPinConfigured) {
                         IconButton(
                             onClick = { viewModel.lockNow() },
@@ -119,7 +117,6 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         }
                     }
 
-                    // Settings dialog button
                     IconButton(
                         onClick = { showSettingsDialog = true },
                         modifier = Modifier.testTag("app_bar_settings_button")
@@ -246,9 +243,9 @@ fun MainAppScreen(viewModel: MainViewModel) {
         }
     }
 
-    // Modal Sheet for Adding/Editing Transactions
     if (showAddSheet) {
         val currencySymbol by viewModel.currencySymbol.collectAsStateWithLifecycle()
+        val budgetStatus by viewModel.budgetStatus.collectAsStateWithLifecycle()
         val initialItem = itemToEdit ?: TransactionEntity(
             type = defaultTypeForAdd,
             amount = 0.0,
@@ -260,11 +257,12 @@ fun MainAppScreen(viewModel: MainViewModel) {
         AddEditTransactionSheet(
             itemToEdit = if (itemToEdit == null) initialItem else itemToEdit,
             currencySymbol = currencySymbol,
+            budgetStatus = budgetStatus,
             onDismiss = {
                 showAddSheet = false
                 itemToEdit = null
             },
-            onSave = { type, amount, note, category, date, paymentMethod ->
+            onSave = { type, amount, note, category, date, paymentMethod, isRecurring, recurringDay ->
                 if (itemToEdit != null) {
                     viewModel.updateTransaction(
                         id = itemToEdit!!.id,
@@ -273,7 +271,9 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         note = note,
                         category = category,
                         date = date,
-                        paymentMethod = paymentMethod
+                        paymentMethod = paymentMethod,
+                        isRecurring = isRecurring,
+                        recurringDayOfMonth = recurringDay
                     )
                 } else {
                     viewModel.addTransaction(
@@ -282,7 +282,9 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         note = note,
                         category = category,
                         date = date,
-                        paymentMethod = paymentMethod
+                        paymentMethod = paymentMethod,
+                        isRecurring = isRecurring,
+                        recurringDayOfMonth = recurringDay
                     )
                 }
                 showAddSheet = false
@@ -291,7 +293,6 @@ fun MainAppScreen(viewModel: MainViewModel) {
         )
     }
 
-    // Settings Dialog
     if (showSettingsDialog) {
         SettingsDialog(
             viewModel = viewModel,

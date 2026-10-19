@@ -3,9 +3,7 @@ package com.example.ui.screens
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -34,6 +32,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -43,9 +44,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.TransactionEntity
 import com.example.model.DateRangePreset
+import com.example.ui.components.BudgetAlertCard
 import com.example.ui.components.CategoryAndTypeFilters
 import com.example.ui.components.CategoryBreakdownSection
 import com.example.ui.components.DateRangeSelector
+import com.example.ui.components.EditBudgetDialog
 import com.example.ui.components.SummaryCards
 import com.example.ui.components.TransactionItemCard
 import com.example.util.FormatUtils
@@ -60,7 +63,10 @@ fun ReportScreen(
     val reportState by viewModel.reportUiState.collectAsStateWithLifecycle()
     val currencySymbol by viewModel.currencySymbol.collectAsStateWithLifecycle()
     val allTransactions by viewModel.allTransactions.collectAsStateWithLifecycle()
+    val budgetStatus by viewModel.budgetStatus.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    var showBudgetDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = modifier
@@ -69,7 +75,6 @@ fun ReportScreen(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Section Header
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
@@ -86,7 +91,6 @@ fun ReportScreen(
             }
         }
 
-        // 1. Date to Date Range Selector
         item {
             DateRangeSelector(
                 startDate = reportState.startDate,
@@ -97,7 +101,6 @@ fun ReportScreen(
             )
         }
 
-        // 2. Report Financial Summary Cards (Report Totals)
         item {
             SummaryCards(
                 totalIncome = reportState.totalIncome,
@@ -108,7 +111,16 @@ fun ReportScreen(
             )
         }
 
-        // 3. Category & Type Filters + Search Bar
+        if (reportState.selectedPreset == DateRangePreset.THIS_MONTH) {
+            item {
+                BudgetAlertCard(
+                    budgetStatus = budgetStatus,
+                    currencySymbol = currencySymbol,
+                    onEditBudget = { showBudgetDialog = true }
+                )
+            }
+        }
+
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -132,7 +144,6 @@ fun ReportScreen(
             }
         }
 
-        // 4. Category-wise Visual Breakdown Section
         item {
             val totalVolume = reportState.totalIncome + reportState.totalExpense
             CategoryBreakdownSection(
@@ -149,7 +160,6 @@ fun ReportScreen(
             )
         }
 
-        // 5. CSV Export and Share Actions
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -208,7 +218,6 @@ fun ReportScreen(
             }
         }
 
-        // 6. Filtered Transactions List Header
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -241,7 +250,6 @@ fun ReportScreen(
             }
         }
 
-        // Empty state when filtered out
         if (reportState.filteredTransactions.isEmpty()) {
             item {
                 Card(
@@ -284,7 +292,6 @@ fun ReportScreen(
                 }
             }
         } else {
-            // Render list of matching transactions
             items(
                 items = reportState.filteredTransactions,
                 key = { it.id }
@@ -301,6 +308,17 @@ fun ReportScreen(
         item {
             Spacer(modifier = Modifier.height(60.dp))
         }
+    }
+
+    if (showBudgetDialog) {
+        EditBudgetDialog(
+            currentBudget = budgetStatus.monthlyBudget,
+            currencySymbol = currencySymbol,
+            onDismiss = { showBudgetDialog = false },
+            onSaveBudget = { newBudget ->
+                viewModel.setMonthlyBudget(newBudget)
+            }
+        )
     }
 }
 

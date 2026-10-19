@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,7 +40,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.model.DateRangePreset
-import com.example.util.FormatUtils
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -66,7 +64,6 @@ fun DateRangeSelector(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Quick Presets Row
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -97,7 +94,6 @@ fun DateRangeSelector(
             }
         }
 
-        // Active Date Range Display Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -146,7 +142,6 @@ fun DateRangeSelector(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // From Date Button
                     OutlinedButton(
                         onClick = { showStartPicker = true },
                         modifier = Modifier
@@ -176,7 +171,6 @@ fun DateRangeSelector(
                         color = MaterialTheme.colorScheme.outline
                     )
 
-                    // To Date Button
                     OutlinedButton(
                         onClick = { showEndPicker = true },
                         modifier = Modifier
@@ -204,7 +198,6 @@ fun DateRangeSelector(
         }
     }
 
-    // Material 3 Date Picker Dialog for Start Date
     if (showStartPicker) {
         val initialMillis = remember(startDate) {
             try {
@@ -251,7 +244,6 @@ fun DateRangeSelector(
         }
     }
 
-    // Material 3 Date Picker Dialog for End Date
     if (showEndPicker) {
         val initialMillis = remember(endDate) {
             try {

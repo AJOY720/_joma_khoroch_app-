@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#176b52">
-  <title>জমা-খরচ • ব্যক্তিগত হিসাব ও রিপোর্ট</title>
+  <title>জমা-খরচ • ব্যক্তিগত হিসাব, বাজেট সতর্কতা ও রিপোর্ট</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <div>
       <h1>জমা-খরচ</h1>
-      <p>আপনার ব্যক্তিগত হিসাব ও Date-to-Date রিপোর্ট</p>
+      <p>ব্যক্তিগত হিসাব, মাসিক বাজেট সতর্কতা ও Date-to-Date রিপোর্ট</p>
     </div>
     <div class="header-actions">
       <button id="lockNow" class="headbtn" title="অ্যাপ লক করুন">🔒 লক</button>
@@ -19,7 +19,7 @@
   </header>
 
   <!-- Lock Screen Overlay -->
-  <section id="lockScreen" class="lockScreen">
+  <section id="lockScreen" class="lockScreen" style="display: none;">
     <div class="lockCard">
       <div class="lockIcon">🔐</div>
       <h2 id="lockTitle">জমা-খরচ আনলক করুন</h2>
@@ -28,15 +28,23 @@
       <form id="unlockForm">
         <input id="pinInput" type="password" autocomplete="current-password" placeholder="PIN / পাসওয়ার্ড" required>
         <button class="primary" type="submit">আনলক</button>
+        <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <button id="resetPinBtn" type="button" class="secondary" style="width: 100%; border: 1px dashed #176b52; background: #eef7f3; cursor: pointer; padding: 10px; font-weight: 600;">
+            🔓 PIN রিসেট করে সরাসরি প্রবেশ করুন
+          </button>
+        </div>
       </form>
 
       <div id="setupArea" hidden>
-        <p>প্রথমবার ব্যবহারের জন্য একটি PIN/পাসওয়ার্ড তৈরি করুন (কমপক্ষে ৪ অক্ষর/সংখ্যা)।</p>
+        <p>প্রথমবার ব্যবহারের জন্য একটি PIN তৈরি করতে পারেন (ঐচ্ছিক)।</p>
         <form id="setupForm">
           <input id="newPin" type="password" autocomplete="new-password" placeholder="নতুন PIN / পাসওয়ার্ড" minlength="4" required>
           <input id="confirmPin" type="password" autocomplete="new-password" placeholder="আবার লিখুন" minlength="4" required>
           <button class="primary" type="submit">PIN সেট করুন</button>
         </form>
+        <button id="bypassPinBtn" type="button" class="secondary" style="width: 100%; margin-top: 10px;">
+          পাসওয়ার্ড ছাড়া সরাসরি ব্যবহার করুন
+        </button>
       </div>
 
       <p id="lockError" class="error" role="alert"></p>
@@ -44,7 +52,7 @@
   </section>
 
   <!-- Main Application -->
-  <main id="app" hidden>
+  <main id="app">
     <!-- Lifetime Overall Summary -->
     <section class="summary">
       <div class="tile">
@@ -58,6 +66,49 @@
       <div class="tile balance">
         <span>বর্তমান ব্যালেন্স (জমা − খরচ)</span>
         <strong id="balance">₹০</strong>
+      </div>
+    </section>
+
+    <!-- MONTHLY BUDGET ALERT & TRACKER SECTION -->
+    <section class="panel budgetCard" id="budgetCard">
+      <div class="budgetHeader">
+        <div class="budgetTitleGroup">
+          <div class="budgetIcon" id="budgetIcon">💼</div>
+          <div>
+            <h3>মাসিক বাজেট সতর্কতা ও হিসাব</h3>
+            <p id="budgetAlertSubtitle" class="budgetSubtitle">চলতি মাসের খরচ বাজেটের নিয়ন্ত্রণে আছে</p>
+          </div>
+        </div>
+        <button type="button" id="openBudgetModal" class="btnOutline" title="বাজেট পরিবর্তন করুন">⚙️ বাজেট সেট</button>
+      </div>
+
+      <div class="budgetProgressWrap">
+        <div class="budgetProgressLabels">
+          <span id="budgetUsageLabel">বাজেট ব্যবহার: <strong>0%</strong></span>
+          <span id="budgetSpentRatio">₹০ / ₹২৫,০০০</span>
+        </div>
+        <div class="progressBarTrack">
+          <div id="progressBarFill" class="progressBarFill" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div class="budgetStatsGrid">
+        <div class="budgetStat">
+          <span>চলতি মাসের খরচ</span>
+          <strong id="budgetThisMonthExpense" class="expenseText">₹০</strong>
+        </div>
+        <div class="budgetStat">
+          <span>নির্ধারিত বাজেট</span>
+          <strong id="budgetMonthlyLimit">₹২৫,০০০</strong>
+        </div>
+        <div class="budgetStat">
+          <span id="budgetRemainingLabel">অবশিষ্ট বাজেট</span>
+          <strong id="budgetRemainingAmount" class="incomeText">₹২৫,০০০</strong>
+        </div>
+      </div>
+
+      <div id="budgetAlertBanner" class="budgetAlertBanner" style="display: none;">
+        <span id="budgetAlertMsg"></span>
       </div>
     </section>
 
@@ -77,24 +128,30 @@
         </div>
 
         <label>
-          টাকার পরিমাণ (₹ / ৳)
+          টাকার পরিমাণ (<span class="currencySymbolDisplay">₹</span> / ৳)
           <input id="amount" type="number" min="0.01" step="0.01" placeholder="যেমন: 500" required>
         </label>
 
+        <!-- REAL-TIME BUDGET WARNING IN FORM -->
+        <div id="formBudgetWarning" class="formBudgetWarning" style="display: none;">
+          <span id="formBudgetWarningMsg"></span>
+        </div>
+
         <label>
           বিবরণ
-          <input id="note" maxlength="100" placeholder="যেমন: বেতন, কাঁচাবাজার, বাড়িভাড়া" required>
+          <input id="note" maxlength="100" placeholder="যেমন: কাঁচাবাজার, বাড়িভাড়া, ইন্টারনেট বিল, বেতন" required>
         </label>
 
         <label>
           ক্যাটাগরি
           <select id="category">
             <option value="বাজার">বাজার</option>
+            <option value="বাড়িভাড়া">বাড়িভাড়া</option>
+            <option value="বিল">বিল</option>
+            <option value="সাবস্ক্রিপশন/ফি">সাবস্ক্রিপশন/ফি</option>
             <option value="বেতন">বেতন</option>
             <option value="ব্যবসা">ব্যবসা</option>
-            <option value="বাড়িভাড়া">বাড়িভাড়া</option>
             <option value="যাতায়াত">যাতায়াত</option>
-            <option value="বিল">বিল</option>
             <option value="চিকিৎসা">চিকিৎসা</option>
             <option value="শিক্ষা">শিক্ষা</option>
             <option value="সঞ্চয়">সঞ্চয়</option>
@@ -106,6 +163,33 @@
           </select>
         </label>
 
+        <!-- RECURRING MONTHLY FEATURE TOGGLE -->
+        <div class="recurringBox" style="background: #f0f7f4; border: 1px solid #c2e2d5; border-radius: 10px; padding: 12px; margin: 12px 0;">
+          <label style="display: flex; align-items: center; justify-content: space-between; margin: 0; cursor: pointer;">
+            <span>
+              <strong style="color: #176b52;">🔁 প্রতি মাসে স্বয়ংক্রিয় যোগ (Recurring)</strong><br>
+              <small style="color: #5e6f67;">বাড়িভাড়া, বিল বা সাবস্ক্রিপশন প্রতি মাসের নির্দিষ্ট দিনে স্বয়ংক্রিয় যোগ হবে</small>
+            </span>
+            <input type="checkbox" id="isRecurring" style="width: 22px; height: 22px; accent-color: #176b52; cursor: pointer;">
+          </label>
+
+          <div id="recurringDayWrap" style="display: none; margin-top: 10px; border-top: 1px dashed #c2e2d5; padding-top: 8px;">
+            <label style="margin: 0; font-size: 13px; font-weight: 600; color: #176b52;">
+              প্রতি মাসের কত তারিখে যোগ হবে?
+              <select id="recurringDay" style="margin-top: 6px;">
+                <option value="1">১ তারিখ</option>
+                <option value="5">৫ তারিখ</option>
+                <option value="10">১০ তারিখ</option>
+                <option value="15">১৫ তারিখ</option>
+                <option value="20">২০ তারিখ</option>
+                <option value="25">২৫ তারিখ</option>
+                <option value="28">২৮ তারিখ</option>
+                <option value="30">৩০ তারিখ</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
         <div class="formGrid2">
           <label>
             তারিখ
@@ -115,9 +199,8 @@
             পেমেন্ট মাধ্যম
             <select id="paymentMethod">
               <option value="নগদ">নগদ</option>
+              <option value="UPI অনলাইন" selected>UPI অনলাইন</option>
               <option value="ব্যাংক">ব্যাংক</option>
-              <option value="বিকাশ">বিকাশ</option>
-              <option value="নগদ (Nagad)">নগদ (Nagad)</option>
               <option value="কার্ড">কার্ড</option>
               <option value="অন্যান্য">অন্যান্য</option>
             </select>
@@ -131,15 +214,14 @@
       </form>
     </section>
 
-    <!-- NEW & POWERFUL DATE TO DATE REPORT SECTION -->
+    <!-- POWERFUL DATE TO DATE REPORT SECTION -->
     <section class="panel reportPanel">
       <div class="reportTitleRow">
         <h2>📅 Date to Date ও ক্যাটাগরি রিপোর্ট</h2>
         <span class="badge">উন্নত বিশ্লেষণ</span>
       </div>
-      <p class="sectionSub">নির্দিষ্ট তারিখ সীমা, ধরন ও ক্যাটাগরি নির্বাচন করে নির্ভুল হিসাব দেখুন</p>
+      <p class="sectionSub">নির্দিষ্ট তারিখ সীমা, ধরন ও ক্যাটাগরি নির্বাচন করে নির্ভুল হিসাব ও বিশ্লেষণ দেখুন</p>
 
-      <!-- Date Presets -->
       <div class="presetButtons">
         <button type="button" class="presetBtn" data-preset="today">আজ</button>
         <button type="button" class="presetBtn" data-preset="yesterday">গতকাল</button>
@@ -150,7 +232,6 @@
         <button type="button" class="presetBtn" data-preset="all">সব সময়</button>
       </div>
 
-      <!-- Date to Date Range Pickers -->
       <div class="dateRangeRow">
         <label>
           শুরুর তারিখ (From Date)
@@ -162,7 +243,6 @@
         </label>
       </div>
 
-      <!-- Type and Category Filters for Report -->
       <div class="reportFilterRow">
         <label>
           হিসাবের ধরন
@@ -177,11 +257,12 @@
           <select id="reportFilterCategory">
             <option value="all">সব ক্যাটাগরি</option>
             <option value="বাজার">বাজার</option>
+            <option value="বাড়িভাড়া">বাড়িভাড়া</option>
+            <option value="বিল">বিল</option>
+            <option value="সাবস্ক্রিপশন/ফি">সাবস্ক্রিপশন/ফি</option>
             <option value="বেতন">বেতন</option>
             <option value="ব্যবসা">ব্যবসা</option>
-            <option value="বাড়িভাড়া">বাড়িভাড়া</option>
             <option value="যাতায়াত">যাতায়াত</option>
-            <option value="বিল">বিল</option>
             <option value="চিকিৎসা">চিকিৎসা</option>
             <option value="শিক্ষা">শিক্ষা</option>
             <option value="সঞ্চয়">সঞ্চয়</option>
@@ -194,7 +275,6 @@
         </label>
       </div>
 
-      <!-- Report Summary Grid -->
       <div class="reportGrid">
         <div class="reportStat">
           <span>রিপোর্টে মোট জমা</span>
@@ -214,7 +294,6 @@
         </div>
       </div>
 
-      <!-- Visual Category Breakdown with Progress Bars -->
       <div class="categoryBreakdownSection" id="categoryBreakdownWrapper">
         <h3>📊 ক্যাটাগরি অনুযায়ী বিশ্লেষণ</h3>
         <div id="categoryBars" class="categoryBars"></div>
@@ -232,7 +311,7 @@
         <button id="exportAllCsv" class="secondary">সব হিসাব CSV</button>
       </div>
 
-      <input id="search" class="search" placeholder="🔍 বিবরণ, ক্যাটাগরি বা তারিখ দিয়ে খুঁজুন…">
+      <input id="search" class="search" placeholder="🔍 বিবরণ, ক্যাটাগরি, তারিখ বা UPI খুঁজুন…">
 
       <div class="entriesList" id="entries"></div>
       <p id="empty" class="empty" hidden>কোনো হিসাব পাওয়া যায়নি।</p>
@@ -240,8 +319,8 @@
 
     <!-- Security & Settings Panel -->
     <section class="panel security">
-      <h2>⚙️ সেটিংস ও নিরাপত্তা</h2>
-      <p>মুদ্রা পরিবর্তন ও PIN নিরাপত্তা ব্যবস্থাপনা করুন।</p>
+      <h2>⚙️ সেটিংস ও বাজেট নিয়ন্ত্রণ</h2>
+      <p>মুদ্রা পরিবর্তন, মাসিক বাজেট ও PIN নিরাপত্তা ব্যবস্থাপনা করুন।</p>
       
       <div class="settingsRow">
         <label>
@@ -254,18 +333,62 @@
         </label>
       </div>
 
-      <div class="settingsButtons">
+      <div style="margin-top: 14px; padding: 12px; background: #eef7f3; border-radius: 8px;">
+        <strong>মাসিক বাজেট:</strong> <span id="settingsCurrentBudget">₹২৫,০০০</span>
+        <button type="button" id="settingsEditBudgetBtn" class="btnOutline" style="margin-left: 10px; padding: 4px 10px; font-size: 13px;">বাজেট পরিবর্তন</button>
+        <p style="margin: 6px 0 0; font-size: 12px; color: var(--text-muted);">
+          খরচ ৮০% বা ১০০% অতিক্রম করলে অ্যাপ স্বয়ংক্রিয় সতর্কতা সংকেত দেখায়।
+        </p>
+      </div>
+
+      <div class="settingsButtons" style="margin-top: 16px;">
         <button id="changePin" class="secondary">PIN পরিবর্তন</button>
         <button id="removePin" class="secondary text-danger">PIN নিষ্ক্রিয় করুন</button>
       </div>
     </section>
 
     <p class="notice">
-      🔒 ডেটা সম্পূর্ণভাবে আপনার এই ডিভাইসের ব্রাউজারে সেভ থাকে। ব্রাউজার ক্যাশ সাফ করার আগে নিয়মিত CSV ব্যাকআপ রাখুন।
+      🔒 ডেটা সম্পূর্ণভাবে আপনার এই ডিভাইসের ব্রাউজারে নিরাপদ থাকে। ব্রাউজার ক্যাশ সাফ করার আগে নিয়মিত CSV ব্যাকআপ রাখুন।
     </p>
   </main>
 
-  <footer>জমা-খরচ • ব্যক্তিগত হিসাব ও Date-to-Date রিপোর্ট</footer>
+  <!-- Budget Setting Modal -->
+  <div id="budgetModal" class="modalOverlay" style="display: none;">
+    <div class="modalCard">
+      <div class="modalHeader">
+        <h3>💰 মাসিক বাজেট নির্ধারণ</h3>
+        <button type="button" id="closeBudgetModal" class="closeBtn">&times;</button>
+      </div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+        প্রতি মাসের সর্বোচ্চ খরচের লক্ষ্য নির্ধারণ করুন। খরচের পরিমাণ ৮০% বা ১০০% হলে অ্যাপ আপনাকে স্বয়ংক্রিয় সতর্কতা সংকেত প্রদর্শন করবে।
+      </p>
+
+      <form id="budgetForm">
+        <label style="margin-top: 12px; display: block; font-weight: 600;">
+          মাসিক বাজেট সীমা (<span class="currencySymbolDisplay">₹</span>)
+          <input type="number" id="budgetInputModal" min="100" step="100" placeholder="যেমন: 25000" required>
+        </label>
+
+        <div style="margin-top: 10px;">
+          <small style="color: var(--text-muted); font-weight: 600;">দ্রুত পছন্দ করুন:</small>
+          <div class="quickChips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
+            <button type="button" class="chipBtn" data-val="10000">₹১০,০০০</button>
+            <button type="button" class="chipBtn" data-val="20000">₹২০,০০০</button>
+            <button type="button" class="chipBtn" data-val="25000">₹২৫,০০০</button>
+            <button type="button" class="chipBtn" data-val="35000">₹৩৫,০০০</button>
+            <button type="button" class="chipBtn" data-val="50000">₹৫০,০০০</button>
+          </div>
+        </div>
+
+        <div class="formBtns" style="margin-top: 16px;">
+          <button type="submit" class="primary" style="flex: 1;">সংরক্ষণ করুন</button>
+          <button type="button" id="cancelBudgetModal" class="secondary">বাতিল</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer>জমা-খরচ • ব্যক্তিগত হিসাব, Date-to-Date রিপোর্ট ও মাসিক বাজেট সতর্কতা</footer>
 
   <script src="app.js"></script>
 </body>

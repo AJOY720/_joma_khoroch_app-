@@ -35,16 +35,16 @@ object FormatUtils {
         currencySymbol: String
     ): String {
         val sb = StringBuilder()
-        // UTF-8 BOM for Excel / Google Sheets Bengali character support
         sb.append('\uFEFF')
-        sb.append("তারিখ,ধরন,বিবরণ,ক্যাটাগরি,টাকার পরিমাণ ($currencySymbol),পেমেন্ট মাধ্যম\n")
+        sb.append("তারিখ,ধরন,বিবরণ,ক্যাটাগরি,টাকার পরিমাণ ($currencySymbol),পেমেন্ট মাধ্যম,মাসিক পুনরাবৃত্তি\n")
 
         for (t in transactions) {
             val typeStr = if (t.type.equals("income", ignoreCase = true)) "জমা" else "খরচ"
             val safeNote = t.note.replace("\"", "\"\"")
             val safeCat = t.category.replace("\"", "\"\"")
             val safeMethod = t.paymentMethod.replace("\"", "\"\"")
-            sb.append("\"${t.date}\",\"$typeStr\",\"$safeNote\",\"$safeCat\",${t.amount},\"$safeMethod\"\n")
+            val recurringStr = if (t.isRecurring) "হ্যাঁ (প্রতি মাসের ${t.recurringDayOfMonth} তারিখে)" else "না"
+            sb.append("\"${t.date}\",\"$typeStr\",\"$safeNote\",\"$safeCat\",${t.amount},\"$safeMethod\",\"$recurringStr\"\n")
         }
         return sb.toString()
     }

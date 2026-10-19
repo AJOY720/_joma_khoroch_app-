@@ -70,7 +70,6 @@ main {
   padding: 0 14px 40px;
 }
 
-/* Summary Cards */
 .summary {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -118,7 +117,6 @@ main {
   font-size: 26px;
 }
 
-/* Panels */
 .panel {
   background: var(--surface);
   border-radius: var(--radius);
@@ -155,7 +153,6 @@ h2 {
   font-weight: 600;
 }
 
-/* Form Styles */
 .panel label {
   display: block;
   font-size: 14px;
@@ -164,7 +161,7 @@ h2 {
   font-weight: 500;
 }
 
-.panel input:not([type=radio]),
+.panel input:not([type=radio]):not([type=checkbox]),
 .panel select,
 .lockCard input {
   display: block;
@@ -267,7 +264,6 @@ h2 {
   margin-top: 12px;
 }
 
-/* Date Presets */
 .presetButtons {
   display: flex;
   gap: 6px;
@@ -300,7 +296,6 @@ h2 {
   gap: 12px;
 }
 
-/* Report Grid */
 .reportGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -336,7 +331,6 @@ h2 {
   color: var(--primary);
 }
 
-/* Visual Category Bars */
 .categoryBreakdownSection {
   margin-top: 18px;
   border-top: 1px dashed var(--border);
@@ -382,7 +376,6 @@ h2 {
   background: var(--income);
 }
 
-/* Entries List */
 .listHead {
   display: flex;
   align-items: center;
@@ -426,6 +419,7 @@ h2 {
 
 .entryMeta {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   font-size: 12px;
   color: var(--text-muted);
@@ -438,6 +432,14 @@ h2 {
   padding: 2px 6px;
   border-radius: 4px;
   font-weight: 500;
+}
+
+.recurringPill {
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
 }
 
 .entryMoney {
@@ -481,7 +483,6 @@ h2 {
   font-size: 14px;
 }
 
-/* Security & Settings */
 .settingsButtons {
   display: flex;
   gap: 10px;
@@ -499,7 +500,6 @@ h2 {
   margin: 16px 0;
 }
 
-/* Lock Screen */
 .lockScreen {
   position: fixed;
   inset: 0;
@@ -550,8 +550,241 @@ footer {
   color: var(--text-muted);
 }
 
+/* --- MONTHLY BUDGET ALERT CARD & MODAL --- */
+.budgetCard {
+  border-left: 5px solid var(--primary);
+  background: var(--surface);
+  transition: all 0.3s ease;
+}
+
+.budgetCard.warning {
+  border-left-color: #e65100;
+  background: #fff9f4;
+}
+
+.budgetCard.exceeded {
+  border-left-color: #d32f2f;
+  background: #fff5f5;
+}
+
+.budgetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.budgetTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.budgetIcon {
+  font-size: 24px;
+  background: var(--primary-light);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.budgetCard.warning .budgetIcon {
+  background: #ffe0b2;
+}
+
+.budgetCard.exceeded .budgetIcon {
+  background: #ffcdd2;
+}
+
+.budgetHeader h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.budgetSubtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.budgetCard.warning .budgetSubtitle {
+  color: #e65100;
+  font-weight: 600;
+}
+
+.budgetCard.exceeded .budgetSubtitle {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+.btnOutline {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnOutline:hover {
+  background: var(--primary-light);
+}
+
+.budgetProgressWrap {
+  margin-bottom: 14px;
+}
+
+.budgetProgressLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.progressBarTrack {
+  background: #e2e8e5;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 5px;
+  transition: width 0.4s ease, background 0.3s ease;
+}
+
+.progressBarFill.warning {
+  background: #e65100;
+}
+
+.progressBarFill.exceeded {
+  background: #d32f2f;
+}
+
+.budgetStatsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  background: #f8faf9;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+
+.budgetStat {
+  text-align: center;
+}
+
+.budgetStat span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.budgetStat strong {
+  display: block;
+  font-size: 15px;
+  margin-top: 2px;
+}
+
+.budgetAlertBanner {
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+  color: #c62828;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.budgetAlertBanner.warning {
+  background: #fff3e0;
+  border-color: #ffe0b2;
+  color: #e65100;
+}
+
+.formBudgetWarning {
+  background: #ffebee;
+  border: 1px solid #ef9a9a;
+  color: #c62828;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+/* Modal Overlay & Card */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 43, 32, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+}
+
+.modalCard {
+  background: white;
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.chipBtn {
+  background: #eef7f3;
+  color: var(--primary);
+  border: 1px solid #c2e2d5;
+  border-radius: 16px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chipBtn:hover, .chipBtn.active {
+  background: var(--primary);
+  color: white;
+}
+
 @media (max-width: 600px) {
-  .dateRangeRow, .reportFilterRow, .formGrid2 {
+  .dateRangeRow, .reportFilterRow, .formGrid2, .budgetStatsGrid {
     grid-template-columns: 1fr;
   }
 }

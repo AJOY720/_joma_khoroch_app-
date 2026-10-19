@@ -6,20 +6,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.CurrencyRupee
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -43,7 +40,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.ui.components.EditBudgetDialog
 import com.example.ui.theme.ExpenseRed
+import com.example.util.FormatUtils
 import com.example.viewmodel.MainViewModel
 
 @Composable
@@ -54,9 +53,11 @@ fun SettingsDialog(
     val context = LocalContext.current
     val currentCurrency by viewModel.currencySymbol.collectAsStateWithLifecycle()
     val isPinConfigured by viewModel.isPinConfigured.collectAsStateWithLifecycle()
+    val monthlyBudget by viewModel.monthlyBudget.collectAsStateWithLifecycle()
 
     var showPinSetupDialog by remember { mutableStateOf(false) }
     var showRemovePinDialog by remember { mutableStateOf(false) }
+    var showEditBudgetDialog by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -81,7 +82,6 @@ fun SettingsDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Currency selection
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         text = "মুদ্রা প্রতীক (Currency Symbol)",
@@ -112,7 +112,6 @@ fun SettingsDialog(
 
                 HorizontalDivider()
 
-                // Security PIN Lock
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -162,7 +161,39 @@ fun SettingsDialog(
 
                 HorizontalDivider()
 
-                // About section
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.AccountBalanceWallet, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Text(
+                            text = "মাসিক বাজেট ও সতর্কতা",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Text(
+                        text = "বর্তমান মাসিক বাজেট: ${FormatUtils.formatMoney(monthlyBudget, currentCurrency)}\nবাজেটের ৮০% খরচ হলে অ্যাপে সতর্কতা সংকেত এবং ১০০% অতিক্রান্ত হলে জরুরি লাল সংকেত প্রদর্শিত হয়।",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+
+                    Button(
+                        onClick = { showEditBudgetDialog = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("settings_edit_budget_button")
+                    ) {
+                        Icon(imageVector = Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("মাসিক বাজেট পরিবর্তন করুন")
+                    }
+                }
+
+                HorizontalDivider()
+
                 Text(
                     text = "জমা-খরচ • ব্যক্তিগত হিসাব\nডেটা সম্পূর্ণভাবে আপনার ডিভাইসে সুরক্ষিত থাকে।",
                     style = MaterialTheme.typography.bodySmall,
@@ -177,7 +208,6 @@ fun SettingsDialog(
         }
     )
 
-    // Set/Change PIN Sub-Dialog
     if (showPinSetupDialog) {
         var newPin by remember { mutableStateOf("") }
         var confirmPin by remember { mutableStateOf("") }
@@ -237,7 +267,6 @@ fun SettingsDialog(
         )
     }
 
-    // Remove PIN Sub-Dialog
     if (showRemovePinDialog) {
         var currentPin by remember { mutableStateOf("") }
         var error by remember { mutableStateOf<String?>(null) }
@@ -281,6 +310,18 @@ fun SettingsDialog(
                 TextButton(onClick = { showRemovePinDialog = false }) {
                     Text("বাতিল")
                 }
+            }
+        )
+    }
+
+    if (showEditBudgetDialog) {
+        EditBudgetDialog(
+            currentBudget = monthlyBudget,
+            currencySymbol = currentCurrency,
+            onDismiss = { showEditBudgetDialog = false },
+            onSaveBudget = { newBudget ->
+                viewModel.setMonthlyBudget(newBudget)
+                Toast.makeText(context, "মাসিক বাজেট আপডেট করা হয়েছে।", Toast.LENGTH_SHORT).show()
             }
         )
     }

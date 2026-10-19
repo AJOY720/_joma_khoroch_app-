@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,7 +29,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.ui.theme.ExpenseLight
 import com.example.ui.theme.ExpenseRed
 import com.example.ui.theme.IncomeGreen
@@ -44,13 +42,12 @@ fun SummaryCards(
     balance: Double,
     currencySymbol: String,
     modifier: Modifier = Modifier,
-    titlePrefix: String = "" // e.g. "রিপোর্টে " or ""
+    titlePrefix: String = ""
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // Balance Card (Spans full width, highlighted)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -111,7 +108,6 @@ fun SummaryCards(
             }
         }
 
-        // Two-column row: Total Income (জমা) & Total Expense (খরচ)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)

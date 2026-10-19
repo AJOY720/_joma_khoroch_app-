@@ -32,6 +32,7 @@ object CategoryRegistry {
         CategoryItem("loan", "ঋণ"),
         CategoryItem("gift", "উপহার"),
         CategoryItem("entertainment", "বিনোদন", TransactionType.EXPENSE),
+        CategoryItem("subscription", "সাবস্ক্রিপশন/ফি", TransactionType.EXPENSE),
         CategoryItem("other", "অন্যান্য")
     )
 

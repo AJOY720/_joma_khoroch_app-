@@ -10,20 +10,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -71,7 +68,6 @@ fun TransactionItemCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Note title
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = item.note.ifEmpty { if (isIncome) "জমা" else "খরচ" },
@@ -87,7 +83,6 @@ fun TransactionItemCard(
                     )
                 }
 
-                // Amount
                 Text(
                     text = "${if (isIncome) "+" else "−"}${FormatUtils.formatMoney(item.amount, currencySymbol)}",
                     style = MaterialTheme.typography.titleMedium,
@@ -96,7 +91,6 @@ fun TransactionItemCard(
                 )
             }
 
-            // Tags row and actions
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -106,7 +100,6 @@ fun TransactionItemCard(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Category Chip
                     Box(
                         modifier = Modifier
                             .background(
@@ -123,8 +116,36 @@ fun TransactionItemCard(
                         )
                     }
 
-                    // Payment method badge if present
-                    if (item.paymentMethod.isNotEmpty()) {
+                    if (item.isRecurring) {
+                        Box(
+                            modifier = Modifier
+                                .background(
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                                .padding(horizontal = 6.dp, vertical = 4.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Repeat,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                                Text(
+                                    text = "প্রতি মাসের ${item.recurringDayOfMonth} তারিখ",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    if (item.paymentMethod.isNotEmpty() && !item.isRecurring) {
                         Box(
                             modifier = Modifier
                                 .background(
@@ -141,7 +162,6 @@ fun TransactionItemCard(
                         }
                     }
 
-                    // Type Badge (জমা/খরচ)
                     Box(
                         modifier = Modifier
                             .background(
@@ -159,7 +179,6 @@ fun TransactionItemCard(
                     }
                 }
 
-                // Action buttons: Edit & Delete
                 Row {
                     IconButton(
                         onClick = { onEdit(item) },

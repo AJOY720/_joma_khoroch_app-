@@ -18,10 +18,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.TrendingDown
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Button
@@ -35,6 +34,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -42,6 +44,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.TransactionEntity
+import com.example.ui.components.BudgetAlertCard
+import com.example.ui.components.EditBudgetDialog
 import com.example.ui.components.SummaryCards
 import com.example.ui.components.TransactionItemCard
 import com.example.ui.theme.ExpenseRed
@@ -60,7 +64,11 @@ fun HomeScreen(
     val summary by viewModel.globalSummary.collectAsStateWithLifecycle()
     val allTransactions by viewModel.allTransactions.collectAsStateWithLifecycle()
     val currencySymbol by viewModel.currencySymbol.collectAsStateWithLifecycle()
+    val budgetStatus by viewModel.budgetStatus.collectAsStateWithLifecycle()
 
+    var showBudgetDialog by remember { mutableStateOf(false) }
+
+    val recurringCount = allTransactions.count { it.isRecurring }
     val recentTransactions = allTransactions.take(8)
 
     LazyColumn(
@@ -70,7 +78,6 @@ fun HomeScreen(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // App Hero / Greetings Card
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -90,7 +97,7 @@ fun HomeScreen(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                     Text(
-                        text = "আপনার ব্যক্তিগত আয় ও ব্যয়ের নির্ভুল হিসাব রাখুন সহজে।",
+                        text = "আপনার ব্যক্তিগত আয়-ব্যয় এবং মাসিক স্বয়ংক্রিয় হিসাবের নির্ভুল খাতা।",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
                     )
@@ -98,7 +105,6 @@ fun HomeScreen(
             }
         }
 
-        // Global Financial Overview
         item {
             SummaryCards(
                 totalIncome = summary.totalIncome,
@@ -108,7 +114,14 @@ fun HomeScreen(
             )
         }
 
-        // Quick Action Buttons (জমা করুন / খরচ লিখুন)
+        item {
+            BudgetAlertCard(
+                budgetStatus = budgetStatus,
+                currencySymbol = currencySymbol,
+                onEditBudget = { showBudgetDialog = true }
+            )
+        }
+
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -142,7 +155,57 @@ fun HomeScreen(
             }
         }
 
-        // Banner directing to Date-to-Date Report
+        // Recurring Subscriptions / Rent Indicator
+        if (recurringCount > 0) {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .background(MaterialTheme.colorScheme.primary, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Repeat,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Column {
+                                Text(
+                                    text = "$recurringCount টি সক্রিয় পুনরাবৃত্তিমূলক হিসাব (Recurring)",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "প্রতি মাসের নির্দিষ্ট তারিখে এই হিসাবগুলো স্বয়ংক্রিয় যুক্ত হবে",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -200,7 +263,6 @@ fun HomeScreen(
             }
         }
 
-        // Recent Entries Header
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -222,7 +284,6 @@ fun HomeScreen(
             }
         }
 
-        // Empty state
         if (allTransactions.isEmpty()) {
             item {
                 Card(
@@ -265,5 +326,16 @@ fun HomeScreen(
         item {
             Spacer(modifier = Modifier.height(60.dp))
         }
+    }
+
+    if (showBudgetDialog) {
+        EditBudgetDialog(
+            currentBudget = budgetStatus.monthlyBudget,
+            currencySymbol = currencySymbol,
+            onDismiss = { showBudgetDialog = false },
+            onSaveBudget = { newBudget ->
+                viewModel.setMonthlyBudget(newBudget)
+            }
+        )
     }
 }

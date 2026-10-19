@@ -53,7 +53,7 @@ private val LightColorScheme =
 @Composable
 fun JomaKhorochTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
-  dynamicColor: Boolean = false, // Keep custom emerald brand colors consistent by default
+  dynamicColor: Boolean = false,
   content: @Composable () -> Unit,
 ) {
   val colorScheme =

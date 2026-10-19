@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,9 +21,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -92,7 +91,7 @@ fun PinLockScreen(
                 )
 
                 Text(
-                    text = "আপনার ব্যক্তিগত হিসাব দেখতে ৪ বা তার বেশি সংখ্যার PIN দিন।",
+                    text = "আপনার ব্যক্তিগত হিসাব দেখতে PIN দিন (অথবা নিচের রিসেট বাটনে চাপুন)।",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.outline
                 )
@@ -123,12 +122,12 @@ fun PinLockScreen(
                 Button(
                     onClick = {
                         if (pinInput.isEmpty()) {
-                            errorMessage = "PIN লিখুন"
+                            errorMessage = "PIN লিখুন (অথবা নিচের রিসেট বাটনে চাপুন)"
                             return@Button
                         }
                         val success = viewModel.verifyAndUnlock(pinInput)
                         if (!success) {
-                            errorMessage = "PIN সঠিক নয়। আবার চেষ্টা করুন।"
+                            errorMessage = "PIN সঠিক নয়। ভুলে গেলে নিচের রিসেট বাটনে চাপুন।"
                         }
                     },
                     modifier = Modifier
@@ -140,6 +139,16 @@ fun PinLockScreen(
                     Icon(imageVector = Icons.Default.LockOpen, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.size(8.dp))
                     Text("আনলক করুন", fontWeight = FontWeight.Bold)
+                }
+
+                OutlinedButton(
+                    onClick = { viewModel.bypassAndClearPin() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("pin_bypass_button"),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("🔓 PIN রিসেট করে সরাসরি প্রবেশ করুন", fontWeight = FontWeight.SemiBold)
                 }
             }
         }

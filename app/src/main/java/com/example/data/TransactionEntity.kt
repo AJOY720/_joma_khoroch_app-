@@ -12,6 +12,9 @@ data class TransactionEntity(
     val note: String,
     val category: String,
     val date: String, // "YYYY-MM-DD"
-    val paymentMethod: String = "নগদ", // e.g. "নগদ", "ব্যাংক", "বিকাশ", "নগদ"
+    val paymentMethod: String = "নগদ",
+    val isRecurring: Boolean = false, // Toggle for recurring monthly entries (e.g. rent, bills)
+    val recurringDayOfMonth: Int = 1, // Specific day of month (1 - 31)
+    val lastGeneratedMonth: String = "", // e.g. "2026-10" to avoid duplicate generation
     val createdAt: Long = System.currentTimeMillis()
 )

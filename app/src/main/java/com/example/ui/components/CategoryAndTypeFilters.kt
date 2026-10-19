@@ -5,14 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -49,7 +47,6 @@ fun CategoryAndTypeFilters(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // Search Input Field
         OutlinedTextField(
             value = searchQuery,
             onValueChange = onSearchQueryChanged,
@@ -75,7 +72,6 @@ fun CategoryAndTypeFilters(
                 .testTag("report_search_input")
         )
 
-        // Type Filter Segmented Buttons (ধরন: সব / জমা / খরচ)
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 text = "হিসাবের ধরন",
@@ -94,7 +90,7 @@ fun CategoryAndTypeFilters(
                     .fillMaxWidth()
                     .testTag("type_segmented_row")
             ) {
-                typeOptions.forEachIndexed { index, (key, label, color) ->
+                typeOptions.forEachIndexed { index, (key, label, _) ->
                     SegmentedButton(
                         shape = SegmentedButtonDefaults.itemShape(index = index, count = typeOptions.size),
                         onClick = { onTypeSelected(key) },
@@ -116,7 +112,6 @@ fun CategoryAndTypeFilters(
             }
         }
 
-        // Category Filter Chips (ক্যাটাগরি ভিত্তিক)
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -141,7 +136,6 @@ fun CategoryAndTypeFilters(
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // "সব ক্যাটাগরি" Chip
                 val isAllSelected = selectedCategory == "ALL"
                 FilterChip(
                     selected = isAllSelected,
@@ -154,7 +148,6 @@ fun CategoryAndTypeFilters(
                     modifier = Modifier.testTag("category_all")
                 )
 
-                // Predefined categories
                 CategoryRegistry.categoryNames.forEach { catName ->
                     val isSelected = selectedCategory == catName
                     FilterChip(

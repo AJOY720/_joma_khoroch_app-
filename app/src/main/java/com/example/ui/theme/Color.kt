@@ -2,7 +2,6 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Emerald Green Theme (Matching the original web app #176b52)
 val EmeraldPrimary = Color(0xFF176B52)
 val EmeraldOnPrimary = Color(0xFFFFFFFF)
 val EmeraldPrimaryContainer = Color(0xFFC7EBDD)
