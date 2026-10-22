@@ -388,6 +388,48 @@
     </div>
   </div>
 
+  <!-- Save Successful Pop-up Modal -->
+  <div id="saveSuccessModal" class="saveSuccessOverlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="saveSuccessTitle">
+    <div class="saveSuccessCard">
+      <div class="successIconWrap">
+        <span class="successCheckIcon">✓</span>
+      </div>
+      <h3 id="saveSuccessTitle">হিসাব সফলভাবে সেভ হয়েছে!</h3>
+      <div id="saveSuccessBadge" class="saveSuccessBadge expense">খরচ</div>
+      <div id="saveSuccessAmount" class="saveSuccessAmount">₹০</div>
+
+      <div class="saveSuccessDetails">
+        <div class="successDetailRow">
+          <span class="detailLabel">বিবরণ:</span>
+          <span class="detailValue" id="saveSuccessNote">-</span>
+        </div>
+        <div class="successDetailRow">
+          <span class="detailLabel">ক্যাটাগরি:</span>
+          <span class="detailValue" id="saveSuccessCategory">-</span>
+        </div>
+        <div class="successDetailRow">
+          <span class="detailLabel">পেমেন্ট মাধ্যম:</span>
+          <span class="detailValue" id="saveSuccessMethod">UPI অনলাইন</span>
+        </div>
+        <div class="successDetailRow">
+          <span class="detailLabel">তারিখ:</span>
+          <span class="detailValue" id="saveSuccessDate">-</span>
+        </div>
+      </div>
+
+      <div class="saveSuccessAutoClose">
+        <div class="saveSuccessBarTrack">
+          <div id="saveSuccessProgressBar" class="saveSuccessBarFill"></div>
+        </div>
+        <small id="saveSuccessTimerText" style="color: var(--text-muted); font-size: 11px; margin-top: 5px; display: block;">স্বয়ংক্রিয়ভাবে বন্ধ হবে...</small>
+      </div>
+
+      <button type="button" id="closeSaveSuccessBtn" class="primary" style="width: 100%; margin-top: 14px; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer;">
+        ঠিক আছে
+      </button>
+    </div>
+  </div>
+
   <footer>জমা-খরচ • ব্যক্তিগত হিসাব, Date-to-Date রিপোর্ট ও মাসিক বাজেট সতর্কতা</footer>
 
   <script src="app.js"></script>

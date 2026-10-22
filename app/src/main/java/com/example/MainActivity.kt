@@ -7,16 +7,25 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -81,6 +90,10 @@ fun MainAppScreen(viewModel: MainViewModel) {
     var itemToEdit by remember { mutableStateOf<TransactionEntity?>(null) }
     var showSettingsDialog by remember { mutableStateOf(false) }
     var defaultTypeForAdd by remember { mutableStateOf("expense") }
+    var showSaveSuccessDialog by remember { mutableStateOf(false) }
+    var saveSuccessTitle by remember { mutableStateOf("হিসাব সফলভাবে সেভ হয়েছে!") }
+    var saveSuccessDetails by remember { mutableStateOf("") }
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     BackHandler(enabled = currentTab != AppTab.HOME && !isAppLocked) {
         currentTab = AppTab.HOME
@@ -263,7 +276,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
                 itemToEdit = null
             },
             onSave = { type, amount, note, category, date, paymentMethod, isRecurring, recurringDay ->
-                if (itemToEdit != null) {
+                val isEdit = itemToEdit != null
+                if (isEdit) {
                     viewModel.updateTransaction(
                         id = itemToEdit!!.id,
                         type = type,
@@ -275,6 +289,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         isRecurring = isRecurring,
                         recurringDayOfMonth = recurringDay
                     )
+                    saveSuccessTitle = "হিসাব সফলভাবে আপডেট হয়েছে!"
                 } else {
                     viewModel.addTransaction(
                         type = type,
@@ -286,7 +301,13 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         isRecurring = isRecurring,
                         recurringDayOfMonth = recurringDay
                     )
+                    saveSuccessTitle = "হিসাব সফলভাবে সেভ হয়েছে!"
                 }
+                val typeBn = if (type == "income") "জমা" else "খরচ"
+                val moneyFormatted = com.example.util.FormatUtils.formatMoney(amount, currencySymbol)
+                saveSuccessDetails = "$typeBn: $moneyFormatted • $note ($category) • $paymentMethod"
+                showSaveSuccessDialog = true
+                android.widget.Toast.makeText(context, "✅ $saveSuccessTitle", android.widget.Toast.LENGTH_SHORT).show()
                 showAddSheet = false
                 itemToEdit = null
             }
@@ -297,6 +318,74 @@ fun MainAppScreen(viewModel: MainViewModel) {
         SettingsDialog(
             viewModel = viewModel,
             onDismiss = { showSettingsDialog = false }
+        )
+    }
+
+    if (showSaveSuccessDialog) {
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(2500)
+            showSaveSuccessDialog = false
+        }
+
+        AlertDialog(
+            onDismissRequest = { showSaveSuccessDialog = false },
+            icon = {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(
+                            color = androidx.compose.ui.graphics.Color(0xFFE8F5E9),
+                            shape = CircleShape
+                        ),
+                    contentAlignment = androidx.compose.ui.Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "সফল",
+                        tint = androidx.compose.ui.graphics.Color(0xFF2E7D32),
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+            },
+            title = {
+                Text(
+                    text = saveSuccessTitle,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = {
+                Column(
+                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = saveSuccessDetails,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "আপনার হিসাবটি নিরাপদে সংরক্ষণ করা হয়েছে।",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { showSaveSuccessDialog = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("save_success_dismiss_button"),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text("ঠিক আছে", fontWeight = FontWeight.Bold)
+                }
+            }
         )
     }
 }

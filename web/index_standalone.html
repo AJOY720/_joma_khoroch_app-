@@ -797,6 +797,155 @@ footer {
   }
 }
 
+/* SAVE SUCCESS POPUP MODAL */
+.saveSuccessOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 43, 32, 0.65);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1200;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.saveSuccessCard {
+  background: #ffffff;
+  width: 100%;
+  max-width: 360px;
+  padding: 24px 20px 20px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(23, 107, 82, 0.28);
+  border: 2px solid #b7e3cf;
+  animation: scaleUpModal 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.successIconWrap {
+  width: 60px;
+  height: 60px;
+  background: #e6f7ef;
+  border: 3px solid #176b52;
+  color: #176b52;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  box-shadow: 0 4px 12px rgba(23, 107, 82, 0.2);
+}
+
+.successCheckIcon {
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.saveSuccessCard h3 {
+  margin: 0 0 8px;
+  color: #176b52;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.saveSuccessBadge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.saveSuccessBadge.income {
+  background: #e6f7ef;
+  color: #176b52;
+}
+
+.saveSuccessBadge.expense {
+  background: #fde8e8;
+  color: #d12c2c;
+}
+
+.saveSuccessAmount {
+  font-size: 26px;
+  font-weight: 800;
+  color: #176b52;
+  margin-bottom: 12px;
+}
+
+.saveSuccessDetails {
+  background: #f4fbf7;
+  border: 1px solid #d2e8dd;
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.successDetailRow {
+  display: flex;
+  justify-content: space-between;
+  margin: 3px 0;
+  gap: 8px;
+}
+
+.detailLabel {
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.detailValue {
+  color: var(--text);
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+.saveSuccessAutoClose {
+  margin-top: 6px;
+}
+
+.saveSuccessBarTrack {
+  height: 4px;
+  background: #e2f0e9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.saveSuccessBarFill {
+  height: 100%;
+  background: #176b52;
+  width: 100%;
+  animation: shrinkProgress 3s linear forwards;
+}
+
+@keyframes scaleUpModal {
+  from {
+    transform: scale(0.82);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shrinkProgress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1177,6 +1326,48 @@ footer {
           <button type="button" id="cancelBudgetModal" class="secondary">বাতিল</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Save Successful Pop-up Modal -->
+  <div id="saveSuccessModal" class="saveSuccessOverlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="saveSuccessTitle">
+    <div class="saveSuccessCard">
+      <div class="successIconWrap">
+        <span class="successCheckIcon">✓</span>
+      </div>
+      <h3 id="saveSuccessTitle">হিসাব সফলভাবে সেভ হয়েছে!</h3>
+      <div id="saveSuccessBadge" class="saveSuccessBadge expense">খরচ</div>
+      <div id="saveSuccessAmount" class="saveSuccessAmount">₹০</div>
+
+      <div class="saveSuccessDetails">
+        <div class="successDetailRow">
+          <span class="detailLabel">বিবরণ:</span>
+          <span class="detailValue" id="saveSuccessNote">-</span>
+        </div>
+        <div class="successDetailRow">
+          <span class="detailLabel">ক্যাটাগরি:</span>
+          <span class="detailValue" id="saveSuccessCategory">-</span>
+        </div>
+        <div class="successDetailRow">
+          <span class="detailLabel">পেমেন্ট মাধ্যম:</span>
+          <span class="detailValue" id="saveSuccessMethod">UPI অনলাইন</span>
+        </div>
+        <div class="successDetailRow">
+          <span class="detailLabel">তারিখ:</span>
+          <span class="detailValue" id="saveSuccessDate">-</span>
+        </div>
+      </div>
+
+      <div class="saveSuccessAutoClose">
+        <div class="saveSuccessBarTrack">
+          <div id="saveSuccessProgressBar" class="saveSuccessBarFill"></div>
+        </div>
+        <small id="saveSuccessTimerText" style="color: var(--text-muted); font-size: 11px; margin-top: 5px; display: block;">স্বয়ংক্রিয়ভাবে বন্ধ হবে...</small>
+      </div>
+
+      <button type="button" id="closeSaveSuccessBtn" class="primary" style="width: 100%; margin-top: 14px; padding: 12px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer;">
+        ঠিক আছে
+      </button>
     </div>
   </div>
 
@@ -1674,6 +1865,7 @@ if ($('entryForm')) {
       lastGeneratedMonth: isRec ? currentYearMonth : ''
     };
 
+    const isEdit = !!editId;
     if (editId) {
       records = records.map(x => x.id === editId ? item : x);
     } else {
@@ -1682,6 +1874,7 @@ if ($('entryForm')) {
 
     persist();
     resetForm();
+    showSaveSuccessPopup(item, isEdit);
   });
 }
 
@@ -1702,6 +1895,95 @@ function resetForm() {
 }
 
 if ($('cancelEdit')) $('cancelEdit').addEventListener('click', resetForm);
+
+// --- SAVE SUCCESSFUL POP-UP MODAL HANDLING ---
+let saveSuccessTimer = null;
+
+function showSaveSuccessPopup(item, isEdit) {
+  const modal = $('saveSuccessModal');
+  if (!modal) return;
+
+  const titleEl = $('saveSuccessTitle');
+  if (titleEl) {
+    titleEl.textContent = isEdit ? 'হিসাব সফলভাবে আপডেট হয়েছে!' : 'হিসাব সফলভাবে সেভ হয়েছে!';
+  }
+
+  const badgeEl = $('saveSuccessBadge');
+  if (badgeEl) {
+    const isIncome = item.type === 'income';
+    badgeEl.textContent = isIncome ? 'জমা' : 'খরচ';
+    badgeEl.className = 'saveSuccessBadge ' + (isIncome ? 'income' : 'expense');
+  }
+
+  const amountEl = $('saveSuccessAmount');
+  if (amountEl) {
+    amountEl.textContent = money(item.amount);
+  }
+
+  const noteEl = $('saveSuccessNote');
+  if (noteEl) {
+    noteEl.textContent = item.note || '—';
+  }
+
+  const catEl = $('saveSuccessCategory');
+  if (catEl) {
+    catEl.textContent = item.category || 'অন্যান্য';
+  }
+
+  const methodEl = $('saveSuccessMethod');
+  if (methodEl) {
+    methodEl.textContent = item.paymentMethod || 'UPI অনলাইন';
+  }
+
+  const dateEl = $('saveSuccessDate');
+  if (dateEl) {
+    dateEl.textContent = item.date || todayStr;
+  }
+
+  // Restart progress bar animation
+  const bar = $('saveSuccessProgressBar');
+  if (bar) {
+    bar.style.animation = 'none';
+    bar.offsetHeight; // trigger reflow
+    bar.style.animation = 'shrinkProgress 3s linear forwards';
+  }
+
+  modal.style.display = 'flex';
+
+  if (saveSuccessTimer) clearTimeout(saveSuccessTimer);
+  saveSuccessTimer = setTimeout(() => {
+    hideSaveSuccessPopup();
+  }, 3000);
+}
+
+function hideSaveSuccessPopup() {
+  const modal = $('saveSuccessModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  if (saveSuccessTimer) {
+    clearTimeout(saveSuccessTimer);
+    saveSuccessTimer = null;
+  }
+}
+
+if ($('closeSaveSuccessBtn')) {
+  $('closeSaveSuccessBtn').addEventListener('click', hideSaveSuccessPopup);
+}
+
+if ($('saveSuccessModal')) {
+  $('saveSuccessModal').addEventListener('click', (e) => {
+    if (e.target === $('saveSuccessModal')) {
+      hideSaveSuccessPopup();
+    }
+  });
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && $('saveSuccessModal') && $('saveSuccessModal').style.display === 'flex') {
+    hideSaveSuccessPopup();
+  }
+});
 
 // --- CSV EXPORT HELPER ---
 function csvDownload(list, filename) {

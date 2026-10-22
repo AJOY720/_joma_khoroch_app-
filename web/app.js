@@ -489,6 +489,7 @@ if ($('entryForm')) {
       lastGeneratedMonth: isRec ? currentYearMonth : ''
     };
 
+    const isEdit = !!editId;
     if (editId) {
       records = records.map(x => x.id === editId ? item : x);
     } else {
@@ -497,6 +498,7 @@ if ($('entryForm')) {
 
     persist();
     resetForm();
+    showSaveSuccessPopup(item, isEdit);
   });
 }
 
@@ -517,6 +519,95 @@ function resetForm() {
 }
 
 if ($('cancelEdit')) $('cancelEdit').addEventListener('click', resetForm);
+
+// --- SAVE SUCCESSFUL POP-UP MODAL HANDLING ---
+let saveSuccessTimer = null;
+
+function showSaveSuccessPopup(item, isEdit) {
+  const modal = $('saveSuccessModal');
+  if (!modal) return;
+
+  const titleEl = $('saveSuccessTitle');
+  if (titleEl) {
+    titleEl.textContent = isEdit ? 'হিসাব সফলভাবে আপডেট হয়েছে!' : 'হিসাব সফলভাবে সেভ হয়েছে!';
+  }
+
+  const badgeEl = $('saveSuccessBadge');
+  if (badgeEl) {
+    const isIncome = item.type === 'income';
+    badgeEl.textContent = isIncome ? 'জমা' : 'খরচ';
+    badgeEl.className = 'saveSuccessBadge ' + (isIncome ? 'income' : 'expense');
+  }
+
+  const amountEl = $('saveSuccessAmount');
+  if (amountEl) {
+    amountEl.textContent = money(item.amount);
+  }
+
+  const noteEl = $('saveSuccessNote');
+  if (noteEl) {
+    noteEl.textContent = item.note || '—';
+  }
+
+  const catEl = $('saveSuccessCategory');
+  if (catEl) {
+    catEl.textContent = item.category || 'অন্যান্য';
+  }
+
+  const methodEl = $('saveSuccessMethod');
+  if (methodEl) {
+    methodEl.textContent = item.paymentMethod || 'UPI অনলাইন';
+  }
+
+  const dateEl = $('saveSuccessDate');
+  if (dateEl) {
+    dateEl.textContent = item.date || todayStr;
+  }
+
+  // Restart progress bar animation
+  const bar = $('saveSuccessProgressBar');
+  if (bar) {
+    bar.style.animation = 'none';
+    bar.offsetHeight; // trigger reflow
+    bar.style.animation = 'shrinkProgress 3s linear forwards';
+  }
+
+  modal.style.display = 'flex';
+
+  if (saveSuccessTimer) clearTimeout(saveSuccessTimer);
+  saveSuccessTimer = setTimeout(() => {
+    hideSaveSuccessPopup();
+  }, 3000);
+}
+
+function hideSaveSuccessPopup() {
+  const modal = $('saveSuccessModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  if (saveSuccessTimer) {
+    clearTimeout(saveSuccessTimer);
+    saveSuccessTimer = null;
+  }
+}
+
+if ($('closeSaveSuccessBtn')) {
+  $('closeSaveSuccessBtn').addEventListener('click', hideSaveSuccessPopup);
+}
+
+if ($('saveSuccessModal')) {
+  $('saveSuccessModal').addEventListener('click', (e) => {
+    if (e.target === $('saveSuccessModal')) {
+      hideSaveSuccessPopup();
+    }
+  });
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && $('saveSuccessModal') && $('saveSuccessModal').style.display === 'flex') {
+    hideSaveSuccessPopup();
+  }
+});
 
 // --- CSV EXPORT HELPER ---
 function csvDownload(list, filename) {
